@@ -255,6 +255,37 @@ jobs:
             --parameters containerImagesRegistrySecretName="$REGISTRY_SECRET_NAME"
           echo "✅ Environment '$ENVIRONMENT' created with recipe pack."
 
+      - name: Provision registry credentials on target cluster
+        shell: bash
+        run: |
+          set -eu
+          # The Radius.Compute/containerImages recipe reads the registry Secret via
+          # the dynamic-rp kubernetes provider, which is wired to the TARGET cluster
+          # (RADIUS_TARGET_KUBECONFIG) by the "Refresh external deployment target
+          # credentials" step. The upstream run-rad-commands action only provisions
+          # the Secret on the control-plane cluster, so the recipe cannot find it
+          # (failed to read registry Secret 'default/ghcr-registry-creds'). Provision
+          # it on the target cluster too, in both the environment and app namespaces.
+          if [ ! -f "$RADIUS_TARGET_KUBECONFIG" ]; then
+            echo "No target kubeconfig; skipping target-cluster secret provisioning."
+            exit 0
+          fi
+          REGISTRY_SECRET_NAME="ghcr-registry-creds"
+          BICEP_APP_NAME=$(grep -oP "name:\s*'\K[^']+" ".radius/app.bicep" 2>/dev/null | head -1)
+          [ -z "$BICEP_APP_NAME" ] && BICEP_APP_NAME="app"
+          APP_NS="default-$BICEP_APP_NAME"
+          ENV_NS="${{ vars.KUBERNETES_NAMESPACE || 'default' }}"
+          for NS in "$ENV_NS" "$APP_NS"; do
+            kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" get namespace "$NS" >/dev/null 2>&1 || \
+              kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" create namespace "$NS"
+            kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" create secret generic "$REGISTRY_SECRET_NAME" \
+              --namespace "$NS" \
+              --from-literal=username="${{ github.actor }}" \
+              --from-literal=password="${{ secrets.GITHUB_TOKEN }}" \
+              --dry-run=client -o yaml | kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" apply -f -
+            echo "Provisioned $REGISTRY_SECRET_NAME on target cluster namespace $NS"
+          done
+
       - name: Run rad commands
         uses: radius-project/radius/.github/extension/actions/run-rad-commands@main
         with:
