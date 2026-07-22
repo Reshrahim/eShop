@@ -226,7 +226,7 @@ resource identityContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           ConnectionStrings__identitydb: {
-            value: 'Host=${identityDb.properties.host};Port=${identityDb.properties.port};Database=identitydb;Username=myadmin;Password=${postgresPassword}'
+            value: 'Host=${identityDb.properties.host};Port=5432;Database=identitydb;Username=myadmin;Password=${postgresPassword}'
           }
         }
         ports: {
@@ -307,7 +307,7 @@ resource catalogContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           ConnectionStrings__catalogdb: {
-            value: 'Host=${catalogDb.properties.host};Port=${catalogDb.properties.port};Database=catalogdb;Username=myadmin;Password=${postgresPassword}'
+            value: 'Host=${catalogDb.properties.host};Port=5432;Database=catalogdb;Username=myadmin;Password=${postgresPassword}'
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
@@ -353,7 +353,7 @@ resource orderingContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'http://identity-api:8080'
           }
           ConnectionStrings__orderingdb: {
-            value: 'Host=${orderingDb.properties.host};Port=${orderingDb.properties.port};Database=orderingdb;Username=myadmin;Password=${postgresPassword}'
+            value: 'Host=${orderingDb.properties.host};Port=5432;Database=orderingdb;Username=myadmin;Password=${postgresPassword}'
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
@@ -399,7 +399,7 @@ resource orderProcessorContainer 'Radius.Compute/containers@2025-08-01-preview' 
             value: 'Development'
           }
           ConnectionStrings__orderingdb: {
-            value: 'Host=${orderingDb.properties.host};Port=${orderingDb.properties.port};Database=orderingdb;Username=myadmin;Password=${postgresPassword}'
+            value: 'Host=${orderingDb.properties.host};Port=5432;Database=orderingdb;Username=myadmin;Password=${postgresPassword}'
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
@@ -475,7 +475,7 @@ resource webhooksContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'http://identity-api:8080'
           }
           ConnectionStrings__webhooksdb: {
-            value: 'Host=${webhooksDb.properties.host};Port=${webhooksDb.properties.port};Database=webhooksdb;Username=myadmin;Password=${postgresPassword}'
+            value: 'Host=${webhooksDb.properties.host};Port=5432;Database=webhooksdb;Username=myadmin;Password=${postgresPassword}'
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
