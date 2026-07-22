@@ -392,7 +392,7 @@ resource orderProcessorContainer 'Radius.Compute/containers@2025-08-01-preview' 
     environment: environment
     application: eshopApp.id
     containers: {
-      orderProcessor: {
+      'order-processor': {
         image: orderProcessorImage.properties.imageReference
         env: {
           ASPNETCORE_ENVIRONMENT: {
@@ -433,7 +433,7 @@ resource paymentProcessorContainer 'Radius.Compute/containers@2025-08-01-preview
     environment: environment
     application: eshopApp.id
     containers: {
-      paymentProcessor: {
+      'payment-processor': {
         image: paymentProcessorImage.properties.imageReference
         env: {
           ASPNETCORE_ENVIRONMENT: {
