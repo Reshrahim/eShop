@@ -21,6 +21,7 @@ resource catalogDb 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     database: 'catalogdb'
+    size: 'S'
     username: 'myadmin'
     password: postgresPassword
     codeReference: 'src/eShop.AppHost/Program.cs#L15'
@@ -33,6 +34,7 @@ resource identityDb 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     database: 'identitydb'
+    size: 'S'
     username: 'myadmin'
     password: postgresPassword
     codeReference: 'src/eShop.AppHost/Program.cs#L16'
@@ -45,6 +47,7 @@ resource orderingDb 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     database: 'orderingdb'
+    size: 'S'
     username: 'myadmin'
     password: postgresPassword
     codeReference: 'src/eShop.AppHost/Program.cs#L17'
@@ -57,6 +60,7 @@ resource webhooksDb 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     database: 'webhooksdb'
+    size: 'S'
     username: 'myadmin'
     password: postgresPassword
     codeReference: 'src/eShop.AppHost/Program.cs#L18'
@@ -73,7 +77,7 @@ resource redisCache 'Radius.Data/redisCaches@2025-08-01-preview' = {
 }
 
 resource eventBus 'Radius.Messaging/rabbitMQ@2025-08-01-preview' = {
-  name: 'rabbitmq'
+  name: 'eshop-eventbus-reabdul'
   properties: {
     environment: environment
     application: eshopApp.id
