@@ -72,6 +72,7 @@ resource redisCache 'Radius.Data/redisCaches@2025-08-01-preview' = {
   properties: {
     environment: environment
     application: eshopApp.id
+    size: 'S'
     codeReference: 'src/eShop.AppHost/Program.cs#L7'
   }
 }
