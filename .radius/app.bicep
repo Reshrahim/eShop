@@ -95,6 +95,7 @@ resource identityImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Identity.API/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/Identity.API/Dockerfile'
   }
@@ -108,6 +109,7 @@ resource basketImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Basket.API/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/Basket.API/Dockerfile'
   }
@@ -121,6 +123,7 @@ resource catalogImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Catalog.API/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/Catalog.API/Dockerfile'
   }
@@ -134,6 +137,7 @@ resource orderingImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Ordering.API/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/Ordering.API/Dockerfile'
   }
@@ -147,6 +151,7 @@ resource orderProcessorImage 'Radius.Compute/containerImages@2025-08-01-preview'
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/OrderProcessor/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/OrderProcessor/Dockerfile'
   }
@@ -160,6 +165,7 @@ resource paymentProcessorImage 'Radius.Compute/containerImages@2025-08-01-previe
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/PaymentProcessor/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/PaymentProcessor/Dockerfile'
   }
@@ -173,6 +179,7 @@ resource webhooksImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Webhooks.API/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/Webhooks.API/Dockerfile'
   }
@@ -186,6 +193,7 @@ resource webhooksClientImage 'Radius.Compute/containerImages@2025-08-01-preview'
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/WebhookClient/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/WebhookClient/Dockerfile'
   }
@@ -199,6 +207,7 @@ resource webAppImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     build: {
       source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/WebApp/Dockerfile'
+      platforms: ['linux/amd64']
     }
     codeReference: 'src/WebApp/Dockerfile'
   }
