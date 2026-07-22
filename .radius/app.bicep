@@ -85,7 +85,7 @@ resource identityImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Identity.API/Dockerfile'
     }
     codeReference: 'src/Identity.API/Dockerfile'
@@ -98,7 +98,7 @@ resource basketImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Basket.API/Dockerfile'
     }
     codeReference: 'src/Basket.API/Dockerfile'
@@ -111,7 +111,7 @@ resource catalogImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Catalog.API/Dockerfile'
     }
     codeReference: 'src/Catalog.API/Dockerfile'
@@ -124,7 +124,7 @@ resource orderingImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Ordering.API/Dockerfile'
     }
     codeReference: 'src/Ordering.API/Dockerfile'
@@ -137,7 +137,7 @@ resource orderProcessorImage 'Radius.Compute/containerImages@2025-08-01-preview'
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/OrderProcessor/Dockerfile'
     }
     codeReference: 'src/OrderProcessor/Dockerfile'
@@ -150,7 +150,7 @@ resource paymentProcessorImage 'Radius.Compute/containerImages@2025-08-01-previe
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/PaymentProcessor/Dockerfile'
     }
     codeReference: 'src/PaymentProcessor/Dockerfile'
@@ -163,7 +163,7 @@ resource webhooksImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/Webhooks.API/Dockerfile'
     }
     codeReference: 'src/Webhooks.API/Dockerfile'
@@ -176,7 +176,7 @@ resource webhooksClientImage 'Radius.Compute/containerImages@2025-08-01-preview'
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/WebhookClient/Dockerfile'
     }
     codeReference: 'src/WebhookClient/Dockerfile'
@@ -189,7 +189,7 @@ resource webAppImage 'Radius.Compute/containerImages@2025-08-01-preview' = {
     environment: environment
     application: eshopApp.id
     build: {
-      source: 'git::https://github.com/dotnet/eShop.git?ref=reshrahim-refactored-succotash'
+      source: 'git::https://github.com/Reshrahim/eShop.git?ref=reshrahim-refactored-succotash'
       dockerfile: 'src/WebApp/Dockerfile'
     }
     codeReference: 'src/WebApp/Dockerfile'
