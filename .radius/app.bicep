@@ -5,6 +5,9 @@ param environment string
 @secure()
 param postgresPassword string
 
+@description('Image tag injected by the deploy workflow (commit SHA). Containers build from build.source, so this is used only as a build/version marker.')
+param image string = ''
+
 resource eshopApp 'Radius.Core/applications@2025-08-01-preview' = {
   name: 'eshop'
   properties: {
