@@ -68,7 +68,7 @@ resource webhooksDb 'Radius.Data/postgreSqlDatabases@2025-08-01-preview' = {
 }
 
 resource redisCache 'Radius.Data/redisCaches@2025-08-01-preview' = {
-  name: 'redis'
+  name: 'eshop-redis-reabdul'
   properties: {
     environment: environment
     application: eshopApp.id
