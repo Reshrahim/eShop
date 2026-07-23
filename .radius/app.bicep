@@ -228,6 +228,14 @@ resource identityContainer 'Radius.Compute/containers@2025-08-01-preview' = {
           ConnectionStrings__identitydb: {
             value: 'Host=${identityDb.properties.host};Port=5432;Database=identitydb;Username=myadmin;Password=${postgresPassword}'
           }
+          // OIDC client redirect-URI registration; must be each client's browser-facing URL.
+          // Full sign-in requires trusted HTTPS (ingress/TLS) - see notes at end of file.
+          WebAppClient: {
+            value: 'http://webapp-webapp:8080'
+          }
+          WebhooksWebClient: {
+            value: 'http://webhooksclient-webhooksclient:8080'
+          }
         }
         ports: {
           web: {
@@ -258,7 +266,7 @@ resource basketContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           Identity__Url: {
-            value: 'http://identity-api:8080'
+            value: 'http://identity-api-identity:8080'
           }
           ConnectionStrings__redis: {
             value: '${redisCache.properties.host}:${redisCache.properties.port}'
@@ -350,7 +358,7 @@ resource orderingContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           Identity__Url: {
-            value: 'http://identity-api:8080'
+            value: 'http://identity-api-identity:8080'
           }
           ConnectionStrings__orderingdb: {
             value: 'Host=${orderingDb.properties.host};Port=5432;Database=orderingdb;Username=myadmin;Password=${postgresPassword}'
@@ -472,7 +480,7 @@ resource webhooksContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           Identity__Url: {
-            value: 'http://identity-api:8080'
+            value: 'http://identity-api-identity:8080'
           }
           ConnectionStrings__webhooksdb: {
             value: 'Host=${webhooksDb.properties.host};Port=5432;Database=webhooksdb;Username=myadmin;Password=${postgresPassword}'
@@ -521,7 +529,14 @@ resource webhooksClientContainer 'Radius.Compute/containers@2025-08-01-preview' 
             value: 'Development'
           }
           IdentityUrl: {
-            value: 'http://identity-api:8080'
+            value: 'http://identity-api-identity:8080'
+          }
+          CallBackUrl: {
+            value: 'http://webhooksclient-webhooksclient:8080'
+          }
+          // Aspire service discovery -> real Radius service DNS (<container>-<containerName>)
+          'services__webhooks-api__http__0': {
+            value: 'http://webhooks-api-webhooks:8080'
           }
         }
         ports: {
@@ -556,7 +571,20 @@ resource webAppContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'Development'
           }
           IdentityUrl: {
-            value: 'http://identity-api:8080'
+            value: 'http://identity-api-identity:8080'
+          }
+          CallBackUrl: {
+            value: 'http://webapp-webapp:8080'
+          }
+          // Aspire service discovery -> real Radius service DNS (<container>-<containerName>)
+          'services__catalog-api__http__0': {
+            value: 'http://catalog-api-catalog:8080'
+          }
+          'services__ordering-api__http__0': {
+            value: 'http://ordering-api-ordering:8080'
+          }
+          'services__basket-api__http__0': {
+            value: 'http://basket-api-basket:8080'
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
@@ -594,3 +622,19 @@ resource webAppContainer 'Radius.Compute/containers@2025-08-01-preview' = {
     codeReference: 'src/WebApp/Program.cs'
   }
 }
+
+// -----------------------------------------------------------------------------
+// Known gaps that CANNOT be expressed in this model today (tracked as Radius bugs):
+//
+// 1. pgvector on Azure Postgres: Catalog.API requires the `vector` extension, but
+//    the postgreSqlDatabases recipe exposes no way to set the server's
+//    `azure.extensions` allow-list. Must be applied out-of-band, e.g.:
+//      az postgres flexible-server parameter set -g <rg> -s <catalog-server> \
+//        --name azure.extensions --value vector
+//
+// 2. Public ingress / stable URL: containers are only reachable via cluster DNS
+//    (<container>-<containerName>:8080). There is no way to model a LoadBalancer/
+//    Ingress or obtain a stable external URL. Full OIDC sign-in additionally needs
+//    trusted HTTPS, so WebAppClient/CallBackUrl/IdentityUrl above use cluster DNS
+//    (good for anonymous browsing; sign-in needs an HTTPS ingress + real hostname).
+// -----------------------------------------------------------------------------
