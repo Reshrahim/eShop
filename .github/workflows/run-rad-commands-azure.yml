@@ -234,6 +234,15 @@ jobs:
           ENV_BICEP="$APP_DIR/radius-env.bicep"
           curl -fsSL "$RECIPE_PACK_URL" -o "$ENV_BICEP"
 
+          # Fork-only workaround (bug: Balanced_B0 Redis Enterprise unavailable in
+          # westus2/eastus2 for this subscription; SKUs API lists it only in
+          # australiacentral). The redis recipe sets no location, so the AVM module
+          # defaults to the resource group's location (westus2) and CreateFails.
+          # Pin the redis recipe to australiacentral by injecting a location param
+          # after its unique skuName line. Other resources stay in the RG region.
+          awk '{print} /skuName:.*Balanced_B0.*Balanced_B1/{print "          location: '"'"'australiacentral'"'"'"}' "$ENV_BICEP" > "$ENV_BICEP.tmp" && mv "$ENV_BICEP.tmp" "$ENV_BICEP"
+          echo "Patched redis recipe location -> australiacentral"
+
           # routesGatewayName is a required pack parameter, but it only matters when
           # a Radius.Compute/routes resource is actually deployed. Default to empty
           # unless the repo configures an existing Kubernetes Gateway.
