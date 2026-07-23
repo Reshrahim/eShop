@@ -234,15 +234,6 @@ jobs:
           ENV_BICEP="$APP_DIR/radius-env.bicep"
           curl -fsSL "$RECIPE_PACK_URL" -o "$ENV_BICEP"
 
-          # Fork-only workaround (bug: Balanced_B0 Redis Enterprise unavailable in
-          # westus2/eastus2 for this subscription; SKUs API lists it only in
-          # australiacentral). The redis recipe sets no location, so the AVM module
-          # defaults to the resource group's location (westus2) and CreateFails.
-          # Pin the redis recipe to australiacentral by injecting a location param
-          # after its unique skuName line. Other resources stay in the RG region.
-          awk '{print} /skuName:.*Balanced_B0.*Balanced_B1/{print "          location: '"'"'australiacentral'"'"'"}' "$ENV_BICEP" > "$ENV_BICEP.tmp" && mv "$ENV_BICEP.tmp" "$ENV_BICEP"
-          echo "Patched redis recipe location -> australiacentral"
-
           # routesGatewayName is a required pack parameter, but it only matters when
           # a Radius.Compute/routes resource is actually deployed. Default to empty
           # unless the repo configures an existing Kubernetes Gateway.
@@ -263,60 +254,6 @@ jobs:
             --parameters containerImagesRegistry="$BUILD_REGISTRY" \
             --parameters containerImagesRegistrySecretName="$REGISTRY_SECRET_NAME"
           echo "✅ Environment '$ENVIRONMENT' created with recipe pack."
-
-      - name: Provision registry credentials on target cluster
-        shell: bash
-        run: |
-          set -eu
-          # The Radius.Compute/containerImages recipe reads the registry Secret via
-          # the dynamic-rp kubernetes provider, which is wired to the TARGET cluster
-          # (RADIUS_TARGET_KUBECONFIG) by the "Refresh external deployment target
-          # credentials" step. The upstream run-rad-commands action only provisions
-          # the Secret on the control-plane cluster, so the recipe cannot find it
-          # (failed to read registry Secret 'default/ghcr-registry-creds'). Provision
-          # it on the target cluster too, in both the environment and app namespaces.
-          if [ ! -f "$RADIUS_TARGET_KUBECONFIG" ]; then
-            echo "No target kubeconfig; skipping target-cluster secret provisioning."
-            exit 0
-          fi
-          REGISTRY_SECRET_NAME="ghcr-registry-creds"
-          BICEP_APP_NAME=$(grep -oP "name:\s*'\K[^']+" ".radius/app.bicep" 2>/dev/null | head -1)
-          [ -z "$BICEP_APP_NAME" ] && BICEP_APP_NAME="app"
-          APP_NS="default-$BICEP_APP_NAME"
-          ENV_NS="${{ vars.KUBERNETES_NAMESPACE || 'default' }}"
-          for NS in "$ENV_NS" "$APP_NS"; do
-            kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" get namespace "$NS" >/dev/null 2>&1 || \
-              kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" create namespace "$NS"
-            kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" create secret generic "$REGISTRY_SECRET_NAME" \
-              --namespace "$NS" \
-              --from-literal=username="${{ github.actor }}" \
-              --from-literal=password="${{ secrets.GITHUB_TOKEN }}" \
-              --dry-run=client -o yaml | kubectl --kubeconfig "$RADIUS_TARGET_KUBECONFIG" apply -f -
-            echo "Provisioned $REGISTRY_SECRET_NAME on target cluster namespace $NS"
-          done
-
-      - name: Tune BuildKit for large image builds
-        shell: bash
-        run: |
-          set -eu
-          # The in-cluster buildkitd sidecar (dynamic-rp Pod, ns radius-system) is
-          # capped at 4Gi by the chart default (dynamicrp.buildkit.resources), and
-          # dynamic-rp runs up to workerServer.maxOperationConcurrency=10 async
-          # operations at once. Deploying eShop fans out 9 containerImages builds
-          # into the single 4Gi buildkitd -> OOMKilled -> "rpc Unavailable / EOF".
-          # The rad-install that sets these lives in the upstream setup-control-plane
-          # action, so raise the memory limit and bound build concurrency at runtime
-          # on the CONTROL-PLANE cluster (default kubeconfig, where buildkitd runs).
-          echo "Raising buildkitd memory limit to 10Gi (requests 1Gi)..."
-          kubectl -n radius-system set resources deployment/dynamic-rp \
-            -c buildkitd --requests=memory=1Gi --limits=memory=10Gi
-          echo "Bounding dynamic-rp maxOperationConcurrency 10 -> 3..."
-          kubectl -n radius-system get configmap dynamic-rp-config -o yaml \
-            | sed 's/maxOperationConcurrency: 10/maxOperationConcurrency: 3/' \
-            | kubectl apply -f -
-          kubectl -n radius-system rollout restart deployment/dynamic-rp
-          kubectl -n radius-system rollout status deployment/dynamic-rp --timeout=300s
-          echo "BuildKit tuned: buildkitd limit=10Gi, maxOperationConcurrency=3"
 
       - name: Run rad commands
         uses: radius-project/radius/.github/extension/actions/run-rad-commands@main
