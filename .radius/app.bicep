@@ -230,6 +230,11 @@ resource identityContainer 'Radius.Compute/containers@2025-08-01-preview' = {
           }
           // OIDC client redirect-URI registration; must be each client's browser-facing URL.
           // Full sign-in requires trusted HTTPS (ingress/TLS) - see notes at end of file.
+          // Honor X-Forwarded-Proto from a TLS-terminating ingress so IdentityServer emits
+          // an https issuer/authority (required for sign-in behind HTTPS ingress).
+          ASPNETCORE_FORWARDEDHEADERS_ENABLED: {
+            value: 'true'
+          }
           WebAppClient: {
             value: 'http://webapp-webapp:8080'
           }
@@ -576,6 +581,11 @@ resource webAppContainer 'Radius.Compute/containers@2025-08-01-preview' = {
           CallBackUrl: {
             value: 'http://webapp-webapp:8080'
           }
+          // Honor X-Forwarded-Proto from a TLS-terminating ingress so OIDC correlation/
+          // redirect URLs use https (required for sign-in behind HTTPS ingress).
+          ASPNETCORE_FORWARDEDHEADERS_ENABLED: {
+            value: 'true'
+          }
           // Aspire service discovery -> real Radius service DNS (<container>-<containerName>)
           'services__catalog-api__http__0': {
             value: 'http://catalog-api-catalog:8080'
@@ -632,9 +642,22 @@ resource webAppContainer 'Radius.Compute/containers@2025-08-01-preview' = {
 //      az postgres flexible-server parameter set -g <rg> -s <catalog-server> \
 //        --name azure.extensions --value vector
 //
-// 2. Public ingress / stable URL: containers are only reachable via cluster DNS
-//    (<container>-<containerName>:8080). There is no way to model a LoadBalancer/
-//    Ingress or obtain a stable external URL. Full OIDC sign-in additionally needs
-//    trusted HTTPS, so WebAppClient/CallBackUrl/IdentityUrl above use cluster DNS
-//    (good for anonymous browsing; sign-in needs an HTTPS ingress + real hostname).
+// 2. Public ingress / stable HTTPS URL for sign-in: containers are only reachable via
+//    cluster DNS (<container>-<containerName>:8080). Radius cannot model a LoadBalancer/
+//    Ingress or obtain a stable external URL, and Radius.Compute/routes only attaches an
+//    HTTPRoute to a PRE-EXISTING Gateway (no controller/LB/TLS-cert provisioning).
+//    The URL values above (WebAppClient/CallBackUrl/IdentityUrl) use cluster DNS, which is
+//    fine for anonymous browsing + service-to-service, but full OIDC sign-in needs trusted
+//    HTTPS on a stable hostname. Verified working sign-in recipe (applied out-of-band):
+//      a. Install an ingress controller (ingress-nginx) + cert-manager + a Let's Encrypt
+//         ClusterIssuer (HTTP-01).
+//      b. Create Ingress objects for webapp-webapp:8080 and identity-api-identity:8080 with
+//         TLS, using sslip.io hostnames derived from the ingress LB IP
+//         (webapp.<LB-IP>.sslip.io, identity.<LB-IP>.sslip.io).
+//      c. Set ASPNETCORE_FORWARDEDHEADERS_ENABLED=true (done above for identity + webapp) so
+//         IdentityServer emits an https issuer that matches the browser-facing authority.
+//      d. Point IdentityUrl/CallBackUrl/WebAppClient at those https hostnames.
+//      e. Raise nginx large-client-header-buffers (chunked .AspNetCore.Cookies auth cookie).
+//    The hostnames depend on the post-provision ingress IP, so they can't be static literals
+//    in this model today - that dynamic-URL + TLS wiring is the outstanding Radius gap.
 // -----------------------------------------------------------------------------
