@@ -274,7 +274,12 @@ resource basketContainer 'Radius.Compute/containers@2025-08-01-preview' = {
             value: 'http://identity-api-identity:8080'
           }
           ConnectionStrings__redis: {
-            value: '${redisCache.properties.host}:${redisCache.properties.port}'
+            valueFrom: {
+              secretKeyRef: {
+                secretName: redisCache.properties.secrets.name
+                key: 'url'
+              }
+            }
           }
           ConnectionStrings__eventbus: {
             valueFrom: {
